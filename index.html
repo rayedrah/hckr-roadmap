@@ -178,6 +178,7 @@ footer{margin-top:30px;font-size:12.5px;color:var(--muted);line-height:1.6;borde
         <div class="bar"><span id="bar"></span></div>
         <div class="next" id="next"></div>
         <div class="toolbar">
+          <button class="btn" id="syncbtn" hidden>Sync</button>
           <button class="btn" id="expand">Collapse all</button>
           <button class="btn" id="theme">Theme</button>
           <button class="btn" id="reset">Reset</button>
@@ -437,9 +438,55 @@ let gi = 0;
 STEPS.forEach((st,si) => { st.i = si; st.tasks.forEach((t,ti) => t.id = 's'+si+'-'+ti); });
 
 const KEY = 'bolt-roadmap-v3';
+
+/* ---- cross-device sync (optional) ----
+   To sync progress across your devices, paste your Cloudflare Worker URL
+   between the quotes below, no trailing slash. Example:
+     const SYNC_URL = "https://roadmap-sync.yourname.workers.dev";
+   Leave it "" to keep progress local to this one browser. */
+const SYNC_URL = "https://roadmap-sync.rayedrah.workers.dev";
+const SKEY_LS = 'bolt-roadmap-synckey';
+let syncKey = '';
+try{ syncKey = localStorage.getItem(SKEY_LS) || ''; }catch(e){}
+const syncOn = () => !!(SYNC_URL && syncKey);
+
 let state = {};
 try{ state = JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(e){ state={}; }
-const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} };
+const saveLocal = () => { try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} };
+const save = () => { saveLocal(); pushRemote(); };
+
+function setSyncStatus(st){
+  const el = document.getElementById('syncbtn');
+  if(!el) return;
+  el.textContent = ({off:'Sync: off',saving:'Sync: saving…',synced:'Sync ✓',error:'Sync: retry'})[st] || 'Sync';
+}
+async function pullRemote(){
+  if(!syncOn()) return;
+  try{
+    const r = await fetch(SYNC_URL + '/state?k=' + encodeURIComponent(syncKey));
+    if(r.ok){
+      const remote = await r.json();
+      if(remote && typeof remote==='object' && !Array.isArray(remote) && Object.keys(remote).length){
+        state = remote; saveLocal(); render();
+      }
+    }
+    setSyncStatus('synced');
+  }catch(e){ setSyncStatus('error'); }
+}
+let pushTimer=null;
+function pushRemote(){
+  if(!syncOn()) return;
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(async () => {
+    try{
+      setSyncStatus('saving');
+      const r = await fetch(SYNC_URL + '/state?k=' + encodeURIComponent(syncKey), {
+        method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(state)
+      });
+      setSyncStatus(r.ok ? 'synced' : 'error');
+    }catch(e){ setSyncStatus('error'); }
+  }, 600);
+}
 
 function esc(x){ return String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 const stepDone = st => st.tasks.every(t => state[t.id]);
@@ -533,6 +580,23 @@ document.getElementById('theme').onclick = () => {
   try{ localStorage.setItem(KEY+'-theme', r.dataset.theme); }catch(e){}
 };
 try{ const t = localStorage.getItem(KEY+'-theme'); if(t) document.documentElement.dataset.theme = t; }catch(e){}
+
+(function initSync(){
+  const btn = document.getElementById('syncbtn');
+  if(!btn) return;
+  if(!SYNC_URL){ btn.hidden = true; return; }
+  btn.hidden = false;
+  setSyncStatus(syncKey ? 'synced' : 'off');
+  btn.onclick = () => {
+    const k = prompt('Sync passphrase — use the SAME phrase on every device to sync your progress:', syncKey || '');
+    if(k === null) return;
+    syncKey = k.trim();
+    try{ localStorage.setItem(SKEY_LS, syncKey); }catch(e){}
+    if(syncKey){ setSyncStatus('saving'); pullRemote().then(pushRemote); }
+    else setSyncStatus('off');
+  };
+  if(syncKey) pullRemote();
+})();
 
 render();
 </script>
