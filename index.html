@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Bolt of Hacking</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: one vertical path of numbered step-nodes on a spine; ship + cert steps accented.
+   Palette: near-black ground, electric amber bolt accent, steel neutrals biased to the accent. */
+:root{
+  --bg:#f7f8fa;--surface:#ffffff;--surface-2:#eef1f5;--text:#15181d;--muted:#5a6472;
+  --border:#e0e4ea;--accent:#d97706;--accent-2:#2563eb;--accent-soft:#fde7cf;
+  --done:#15803d;--done-soft:#dcf3e3;--bolt:#f59e0b;--spine:#e0e4ea;
+  --set:#0d9488;--read:#2563eb;--lab:#ea580c;--build:#dc2626;--ship:#16a34a;--cert:#b45309;--hunt:#db2777;
+  --shadow:0 1px 2px rgba(20,30,50,.05),0 6px 20px rgba(20,30,50,.06);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0a0c10;--surface:#12161c;--surface-2:#191f27;--text:#e9edf2;--muted:#9099a6;
+  --border:#252c36;--accent:#f59e0b;--accent-2:#60a5fa;--accent-soft:#2a2113;
+  --done:#3fcf73;--done-soft:#122a1b;--bolt:#fbbf24;--spine:#252c36;
+  --set:#2dd4bf;--read:#60a5fa;--lab:#fb923c;--build:#f87171;--ship:#4ade80;--cert:#fbbf24;--hunt:#f472b6;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 22px rgba(0,0,0,.35);color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0a0c10;--surface:#12161c;--surface-2:#191f27;--text:#e9edf2;--muted:#9099a6;
+  --border:#252c36;--accent:#f59e0b;--accent-2:#60a5fa;--accent-soft:#2a2113;
+  --done:#3fcf73;--done-soft:#122a1b;--bolt:#fbbf24;--spine:#252c36;
+  --set:#2dd4bf;--read:#60a5fa;--lab:#fb923c;--build:#f87171;--ship:#4ade80;--cert:#fbbf24;--hunt:#f472b6;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 22px rgba(0,0,0,.35);color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font-family:"Space Grotesk",system-ui,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1140px;margin:0 auto;padding-block:28px 96px;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
+a{color:var(--accent-2)}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace}
+
+.hero{position:relative;overflow:hidden;border:1px solid var(--border);border-radius:18px;background:
+  radial-gradient(130% 120% at 100% 0%,var(--accent-soft) 0%,transparent 55%),var(--surface);
+  padding:26px 24px;box-shadow:var(--shadow);margin-bottom:18px}
+.kicker{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin:0 0 10px}
+.hero h1{font-size:clamp(30px,6vw,46px);line-height:1.02;letter-spacing:-.02em;margin:0 0 10px;text-wrap:balance;font-weight:700}
+.hero h1 .zap{color:var(--bolt)}
+.hero p{margin:0;max-width:64ch;color:var(--muted);font-size:15px}
+.creed{margin-top:14px;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12.5px;color:var(--text);background:var(--surface-2);border:1px solid var(--border);border-left:3px solid var(--bolt);border-radius:8px;padding:10px 12px;max-width:66ch}
+
+.market{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0 18px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:13px 14px;box-shadow:var(--shadow)}
+.stat .n{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:20px;font-weight:700;color:var(--accent)}
+.stat .l{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.35}
+
+.layout{display:grid;grid-template-columns:1fr;gap:20px}
+.railwrap{display:contents}
+.summary{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;box-shadow:var(--shadow)}
+.summary .big{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:34px;font-weight:700;line-height:1}
+.summary .sub{color:var(--muted);font-size:12.5px;margin-top:3px}
+.bar{height:10px;background:var(--surface-2);border-radius:99px;overflow:hidden;margin-top:12px}
+.bar>span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--bolt));transition:width .4s}
+.next{margin-top:12px;font-size:13px;color:var(--muted);border-top:1px solid var(--border);padding-top:12px}
+.next b{color:var(--text)}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.btn{font:inherit;font-size:12.5px;background:var(--surface-2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:7px 11px;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.warn{border-color:var(--build);color:var(--build)}
+.btn:focus-visible,.subtask input:focus-visible,.step-head:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px;font-size:11.5px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
+
+.ongoing{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--bolt);border-radius:16px;padding:16px 18px;box-shadow:var(--shadow);margin-top:16px}
+.ongoing h3{margin:0 0 3px;font-size:14px}
+.ongoing .hint{color:var(--muted);font-size:12px;margin:0 0 12px}
+.ongoing ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.ongoing li{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;line-height:1.4}
+.ongoing li .ic{flex:0 0 auto;width:16px;text-align:center}
+.ongoing li b{color:var(--text);font-weight:600}
+.ongoing li span{color:var(--muted)}
+.cadence{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;box-shadow:var(--shadow);margin-top:16px}
+.cadence h3{margin:0 0 4px;font-size:14px}
+.cadence .hint{color:var(--muted);font-size:12px;margin:0 0 12px}
+.days{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.day{border:1px solid var(--border);border-radius:11px;padding:11px;background:var(--surface-2)}
+.day .d{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.day .t{font-weight:600;font-size:13px;margin:3px 0 4px}
+.day p{margin:0;font-size:12px;color:var(--muted);line-height:1.4}
+
+.actlabel{display:flex;align-items:baseline;gap:12px;margin:30px 0 4px;padding-left:4px}
+.actlabel .ax{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.actlabel .an{font-size:18px;font-weight:600;letter-spacing:-.01em}
+.actlabel .ad{font-size:12.5px;color:var(--muted);margin-left:auto;text-align:right}
+
+.steps{position:relative;margin-top:10px}
+.steps::before{content:"";position:absolute;left:19px;top:18px;bottom:18px;width:2px;background:var(--spine)}
+.step{position:relative;padding-left:52px;margin-bottom:12px}
+.node{position:absolute;left:0;top:0;width:40px;height:40px;border-radius:50%;background:var(--surface);border:2px solid var(--border);color:var(--muted);display:grid;place-items:center;font-family:"JetBrains Mono",ui-monospace,monospace;font-weight:700;font-size:14px;z-index:1}
+.step.ship .node{border-color:var(--ship);color:var(--ship)}
+.step.cert .node{border-color:var(--cert);color:var(--cert)}
+.step.optional .node{border-style:dashed}
+.step.complete .node{background:var(--done-soft);border-color:var(--done);color:var(--done);border-style:solid}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.step.ship .card{border-left:3px solid var(--ship)}
+.step.cert .card{border-left:3px solid var(--cert)}
+.step.complete .card{border-color:var(--done)}
+.step-head{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;cursor:pointer;user-select:none;width:100%;background:none;border:0;text-align:left;font:inherit;color:inherit}
+.step-head .h-main{flex:1;min-width:0}
+.step-title{font-weight:600;font-size:16px;letter-spacing:-.01em;line-height:1.3}
+.flag{display:inline-block;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;border-radius:5px;padding:1px 6px;margin-left:8px;vertical-align:2px}
+.flag.ship{color:var(--ship);border:1px solid var(--ship)}
+.flag.cert{color:var(--cert);border:1px solid var(--cert)}
+.flag.opt{color:var(--muted);border:1px solid var(--border)}
+.step-meta{font-size:11.5px;color:var(--accent);font-family:"JetBrains Mono",ui-monospace,monospace;margin-top:3px}
+.know{font-size:12.5px;color:var(--muted);margin-top:6px;line-height:1.4}
+.know b{color:var(--text);font-weight:600}
+.h-right{display:flex;flex-direction:column;align-items:flex-end;gap:7px;flex:0 0 auto}
+.h-prog{font-size:11px;font-family:"JetBrains Mono",ui-monospace,monospace;color:var(--muted);white-space:nowrap}
+.chev{color:var(--muted);transition:transform .2s;font-size:11px}
+.step.closed .chev{transform:rotate(-90deg)}
+.step.closed .subtasks{display:none}
+.subtasks{list-style:none;margin:0;padding:2px 12px 12px;border-top:1px solid var(--border)}
+.subtask{display:flex;gap:11px;align-items:flex-start;padding:9px 8px;border-radius:9px}
+.subtask:hover{background:var(--surface-2)}
+.subtask input{margin-top:2px;width:17px;height:17px;accent-color:var(--done);flex:0 0 auto;cursor:pointer}
+.subtask .sb{flex:1;min-width:0}
+.subtask .st{font-size:13.5px;line-height:1.35}
+.subtask .st a{color:var(--text);text-decoration:none;border-bottom:1px dashed var(--border)}
+.subtask .st a:hover{color:var(--accent-2);border-color:var(--accent-2)}
+.subtask .sn{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.4}
+.subtask.done .st{color:var(--muted);text-decoration:line-through}
+.subtask.done .sn{opacity:.7}
+.tag{display:inline-block;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 6px;border-radius:5px;margin-left:7px;vertical-align:1.5px;color:#fff;white-space:nowrap}
+.cost{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:10.5px;color:var(--cert);border:1px solid var(--border);border-radius:5px;padding:1px 6px;margin-left:6px;vertical-align:1px;white-space:nowrap}
+footer{margin-top:30px;font-size:12.5px;color:var(--muted);line-height:1.6;border-top:1px solid var(--border);padding-top:16px}
+
+@media (min-width:880px){
+  .layout{grid-template-columns:300px 1fr;align-items:start}
+  .rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 14px)}
+  .railwrap{display:flex;flex-direction:column}
+}
+@media (max-width:560px){
+  .market{grid-template-columns:repeat(2,1fr)}
+  .days{grid-template-columns:1fr}
+  .h-right .h-prog{display:none}
+  .hero h1{font-size:30px}
+  .actlabel{flex-wrap:wrap}
+  .actlabel .ad{margin-left:0;text-align:left;width:100%}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <p class="kicker">⚡ Offensive Security · Bug Bounty · AI Red Teaming</p>
+    <h1>The <span class="zap">Bolt</span> of Hacking</h1>
+    <p>One path, walked step by step. Read the step, do it this day or week, check it off. Nothing is skipped: you start at the fundamentals, earn each cert as the knowledge lands, hunt real targets, and finish on the AI frontier where the field is heading. Knowledge leads, proof follows.</p>
+    <div class="creed mono">// build up potential, strike with full power when it matters most<br>// learn the ground → own the web → go live → broaden → break the machine → prove humans still hit harder</div>
+  </header>
+
+  <div class="market">
+    <div class="stat"><div class="n">+540%</div><div class="l">Valid prompt-injection reports in 2025, the fastest-growing threat class (HackerOne)</div></div>
+    <div class="stat"><div class="n">1,121</div><div class="l">Bounty programs with AI in scope, up 270% year over year</div></div>
+    <div class="stat"><div class="n">$20K</div><div class="l">Top payout in Google's new AI Vulnerability Reward Program</div></div>
+    <div class="stat"><div class="n">$500–15K</div><div class="l">Per-finding range on 0DIN, a GenAI-only bug bounty program</div></div>
+  </div>
+
+  <div class="layout">
+    <div class="rail">
+     <div class="railwrap">
+      <div class="summary">
+        <div class="big" id="pct">0%</div>
+        <div class="sub" id="count">0 of 0 done</div>
+        <div class="bar"><span id="bar"></span></div>
+        <div class="next" id="next"></div>
+        <div class="toolbar">
+          <button class="btn" id="expand">Collapse all</button>
+          <button class="btn" id="theme">Theme</button>
+          <button class="btn" id="reset">Reset</button>
+        </div>
+        <div class="legend">
+          <span><i style="background:var(--accent)"></i>Learn / do</span>
+          <span><i style="background:var(--ship)"></i>Ship (blog/LinkedIn)</span>
+          <span><i style="background:var(--cert)"></i>Cert checkpoint</span>
+        </div>
+      </div>
+
+      <div class="ongoing">
+        <h3>🔁 Always on</h3>
+        <p class="hint">These never get checked off. Keep them running through every phase.</p>
+        <ul>
+          <li><span class="ic">⚔️</span><div><b>b01lers</b> <span>— compete in every CTF the team enters</span></div></li>
+          <li><span class="ic">🧩</span><div><b>CTF writeups</b> <span>— publish one after each competition</span></div></li>
+          <li><span class="ic">✍️</span><div><b>Brain Log</b> <span>— a blog post on rydr.info most weeks</span></div></li>
+          <li><span class="ic">in</span><div><b>LinkedIn</b> <span>— one post per milestone, lab, or finding</span></div></li>
+          <li><span class="ic">🎯</span><div><b>Hunt</b> <span>— ~2 focused sessions/week on a live target</span></div></li>
+          <li><span class="ic">📡</span><div><b>Read</b> <span>— Hacktivity + AI-security blogs, weekly</span></div></li>
+          <li><span class="ic">🛠️</span><div><b>Home lab</b> <span>— keep DeadRay targets and tools warm</span></div></li>
+        </ul>
+      </div>
+
+      <div class="cadence">
+        <h3>⚡ Ship cadence</h3>
+        <p class="hint">Emailed Mon / Wed / Fri. Studying is invisible; posts are the portfolio.</p>
+        <div class="days">
+          <div class="day"><div class="d">Mon</div><div class="t">Charge up</div><p>Pick this week's step. Block the time.</p></div>
+          <div class="day"><div class="d">Wed</div><div class="t">Hands on</div><p>One real session: a lab, a hunt, a build.</p></div>
+          <div class="day"><div class="d">Fri</div><div class="t">Strike</div><p>Ship one post on what you did. Save the link.</p></div>
+        </div>
+      </div>
+     </div>
+    </div>
+
+    <div class="main" id="main"></div>
+  </div>
+
+  <footer>
+    Progress is saved in this browser only. Links open the current version of each resource; where a page moves often, the link runs a search. Prices are rough, confirm before buying. Hunt only where you're authorized: VDPs, bug bounty scope, and your own lab. ⚡
+  </footer>
+</div>
+
+<script>
+const s = q => 'https://www.google.com/search?q=' + encodeURIComponent(q);
+const KINDS = {set:'Set up',read:'Learn',lab:'Lab',build:'Build',hunt:'Do it',ship:'Ship',cert:'Cert'};
+const colors = {set:'var(--set)',read:'var(--read)',lab:'var(--lab)',build:'var(--build)',hunt:'var(--hunt)',ship:'var(--ship)',cert:'var(--cert)'};
+
+const ACTS = [
+ {ax:'Act 0', an:'Learn the Ground', ad:'The fundamentals. No shortcuts. ~4–6 weeks.'},
+ {ax:'Act I', an:'Own the Web', ad:'Every core bug class, in depth. ~8–10 weeks.'},
+ {ax:'Act II', an:'Go Live', ad:'Hunt real targets. Report. Earn. Ongoing.'},
+ {ax:'Act III', an:'Broaden the Offense', ad:'Network, AD, systems. Not web-only. ~6 weeks.'},
+ {ax:'Act IV', an:'Learn the Machine', ad:'Enough ML to see the attack surface. ~3 weeks.'},
+ {ax:'Act V', an:'Break the Machine', ad:'Red-team AI. Where the field is going. ~8 weeks.'},
+ {ax:'Act VI', an:'Full Charge', ad:'Become known. Stay ahead. Forever.'}
+];
+
+// type: 'learn'(default) | 'ship' | 'cert'.  optional: true for nice-to-have certs.
+const STEPS = [
+ // ===== ACT 0 — fundamentals, nothing skipped =====
+ {act:0,title:'Build your hacking lab',time:'2–3 days',know:'A safe place to attack things and a proxy between you and any app.',tasks:[
+   {kind:'set',t:'Install Kali Linux (or a VM) and Burp Suite Community',url:s('install Kali Linux VM Burp Suite Community'),n:'A dedicated attack box. Keep it separate from daily driver.'},
+   {kind:'set',t:'Route your browser through Burp; intercept, edit, resend one request',url:'https://portswigger.net/burp/documentation/desktop/getting-started',n:'That intercept → Repeater loop is the whole craft in miniature.'},
+   {kind:'build',t:'Stand up OWASP Juice Shop on your home server as a target',url:s('OWASP Juice Shop docker run'),n:'Your DeadRay box is perfect. A sandbox you own.'},
+   {kind:'set',t:'Set up a note system (Obsidian/CherryTree) for every target & payload',n:'Hunters live or die by notes. Start on day one.'}
+ ]},
+ {act:0,title:'Learn how the internet actually works',time:'~1 week',know:'You can explain a request from DNS to TLS to HTTP response, and name every attackable part.',tasks:[
+   {kind:'read',t:'Work TryHackMe "Pre Security" path (networking, web, Linux intro)',url:'https://tryhackme.com/paths',n:'Guided and beginner-friendly. Do not skip because of coursework. Own it cold.'},
+   {kind:'read',t:'Understand TCP/IP, DNS, ports, HTTP/HTTPS, TLS, cookies, headers',url:'https://developer.mozilla.org/en-US/docs/Web/HTTP',n:'You cannot attack a protocol you cannot explain.'}
+ ]},
+ {act:0,title:'Get fluent in Linux & the shell',time:'~1 week',know:'You move around Linux, pipe commands, and write small shell one-liners without thinking.',tasks:[
+   {kind:'lab',t:'Clear OverTheWire: Bandit, level by level',url:'https://overthewire.org/wargames/bandit/',n:'The classic. You run Arch already, so speedrun it and fill the gaps.'},
+   {kind:'read',t:'Learn grep, find, awk, sed, ssh, curl, and file permissions',url:s('linux command line for hackers cheat sheet')}
+ ]},
+ {act:0,title:'Script for offense',time:'~1 week',know:'You can automate a boring task and write a small tool that talks to a web app.',tasks:[
+   {kind:'build',t:'Write a Python script using requests that enumerates something',url:s('python requests enumerate web app tutorial'),n:'A tiny directory or user enumerator. Put it on GitHub.'},
+   {kind:'read',t:'Learn enough Bash to glue tools together in a pipeline',url:s('bash scripting for penetration testers')}
+ ]},
+ {act:0,type:'cert',title:'Finish the Google Cybersecurity Certificate',time:'in progress · Course 5/9',know:'Broad security literacy and your first real credential, already underway.',tasks:[
+   {kind:'cert',t:'Finish Courses 5–9 (you are on Assets, Threats & Vulnerabilities)',url:s('Google Cybersecurity Certificate Coursera'),cost:'~$49/mo'},
+   {kind:'build',t:'Turn the Botium Toys audit + NIST CSF work into a public writeup',n:'Coursework becomes portfolio. Link it from your resume.'}
+ ]},
+ {act:0,type:'ship',title:'Launch your platform',time:'milestone',know:'Your public identity exists and the paper trail has started.',tasks:[
+   {kind:'ship',t:'Publish the "Brain Log" blog on rydr.info',url:'https://rydr.info',n:'The blog you already planned. This is where every writeup lands.'},
+   {kind:'ship',t:'Post #1: "Going offensive: my roadmap" on the blog + LinkedIn',n:'Public commitment. Announce the journey.'}
+ ]},
+
+ // ===== ACT I — own the web =====
+ {act:1,title:'Master Burp & the attacker’s view of HTTP',time:'~1 week',know:'You read any request and instantly see params, headers, and cookies as attack surface.',tasks:[
+   {kind:'read',t:'Do the Web Security Academy "Getting started" + learn Repeater/Intruder/Decoder',url:'https://portswigger.net/web-security/getting-started'},
+   {kind:'lab',t:'Clear the Information disclosure labs (Apprentice)',url:'https://portswigger.net/web-security/information-disclosure'}
+ ]},
+ {act:1,title:'Broken access control & IDOR',time:'~1 week',know:'You can find and exploit missing authorization — the most common real-world bug.',tasks:[
+   {kind:'read',t:'Read the Access control topic',url:'https://portswigger.net/web-security/access-control'},
+   {kind:'lab',t:'Clear every Access control lab (Apprentice + Practitioner)',url:'https://portswigger.net/web-security/access-control'},
+   {kind:'ship',t:'Post: "How IDOR works" with a lab walkthrough'}
+ ]},
+ {act:1,title:'Cross-site scripting (XSS)',time:'~1–2 weeks',know:'You land reflected, stored, and DOM XSS, and write context-aware payloads.',tasks:[
+   {kind:'read',t:'Read the XSS topic + contexts and sinks',url:'https://portswigger.net/web-security/cross-site-scripting'},
+   {kind:'lab',t:'Clear reflected + stored Apprentice labs',url:'https://portswigger.net/web-security/cross-site-scripting'},
+   {kind:'lab',t:'Clear DOM XSS + several Practitioner XSS labs',n:'Be fluent here. XSS is the heart of the BSCP exam later.'}
+ ]},
+ {act:1,title:'SQL injection & the injection family',time:'~1 week',know:'You find and exploit SQLi, and recognize command and NoSQL injection.',tasks:[
+   {kind:'read',t:'Read the SQL injection topic',url:'https://portswigger.net/web-security/sql-injection'},
+   {kind:'lab',t:'Clear the Apprentice + key Practitioner SQLi labs',url:'https://portswigger.net/web-security/sql-injection'},
+   {kind:'lab',t:'Do one OS command injection lab',url:'https://portswigger.net/web-security/os-command-injection'}
+ ]},
+ {act:1,title:'SSRF, SSTI, smuggling & host-header',time:'~1 week',know:'You make servers make requests for you and abuse how proxies parse requests.',tasks:[
+   {kind:'lab',t:'Clear SSRF labs (Apprentice + Practitioner)',url:'https://portswigger.net/web-security/ssrf'},
+   {kind:'lab',t:'Clear a template injection (SSTI), request smuggling & host-header lab',url:'https://portswigger.net/web-security/server-side-template-injection'}
+ ]},
+ {act:1,title:'Authentication, session & JWT flaws',time:'~1 week',know:'You break login flows, abuse logic, and tamper with sessions and JWTs.',tasks:[
+   {kind:'read',t:'Read the Authentication + JWT attacks topics',url:'https://portswigger.net/web-security/authentication'},
+   {kind:'lab',t:'Clear the Authentication + JWT labs',url:'https://portswigger.net/web-security/jwt'}
+ ]},
+ {act:1,title:'Business logic, file upload, CSRF & info disclosure',time:'~1 week',know:'You find flaws scanners miss: abusable logic, unsafe uploads, exposed data.',tasks:[
+   {kind:'lab',t:'Clear the Business logic, File upload, CSRF & Info disclosure labs',url:'https://portswigger.net/web-security/logic-flaws'},
+   {kind:'ship',t:'Post: "5 web bug classes and how I test for each"'}
+ ]},
+ {act:1,title:'Recon & build your own methodology',time:'~1 week',know:'You have a repeatable, written testing checklist that is yours.',tasks:[
+   {kind:'read',t:'Watch InsiderPhD’s "find your first bug" series',url:s('InsiderPhD how to find your first bug youtube'),n:'Best free beginner methodology on the internet.'},
+   {kind:'read',t:'Skim Jason Haddix’s Bug Hunter’s Methodology (TBHM)',url:s('Jason Haddix Bug Hunters Methodology TBHM')},
+   {kind:'read',t:'Read Bug Bounty Bootcamp (Vickie Li) as your spine',url:s('Bug Bounty Bootcamp Vickie Li'),n:'Recon to report, class by class.'},
+   {kind:'build',t:'Write your own one-page per-target testing checklist'}
+ ]},
+ {act:1,type:'ship',title:'Ship checkpoint: web mastery',time:'milestone',know:'Your blog shows you understand each bug class, not just that you studied it.',tasks:[
+   {kind:'ship',t:'Have at least 4 bug-class writeups published on rydr.info'},
+   {kind:'ship',t:'Set a steady LinkedIn cadence: one post per bug class or lab milestone'}
+ ]},
+ {act:1,type:'cert',title:'Cert: CompTIA Security+',time:'after Google · ~Spring 2027',know:'The broad-literacy credential most HR filters expect, as you stated.',tasks:[
+   {kind:'cert',t:'Study and sit Security+',url:s('CompTIA Security+ certification'),cost:'~$404'},
+   {kind:'read',t:'Pick the right version: if your exam is 2027, study for SY0-801',url:s('Security+ SY0-801 release date SY0-701 retirement'),n:'SY0-801 launches ~Nov 2026; SY0-701 retires Jun 11, 2027.'}
+ ]},
+ {act:1,type:'cert',optional:true,title:'Cert: Burp Suite Certified Practitioner (BSCP)',time:'when Practitioner labs feel easy',cost:'req. Burp Pro',know:'A respected, practical web-app cert — the payoff of all that lab work.',tasks:[
+   {kind:'cert',t:'When you can clear Practitioner labs unaided, book BSCP',url:'https://portswigger.net/web-security/certification',n:'Open-book, auto-proctored, needs an active Burp Pro license.'},
+   {kind:'lab',t:'Run the free BSCP practice exam until it’s boring',url:'https://portswigger.net/web-security/certification'},
+   {kind:'ship',t:'Post: "How I passed BSCP"'}
+ ]},
+
+ // ===== ACT II — go live (concrete do-now actions) =====
+ {act:2,title:'Get on the platforms',time:'a few days',know:'You have accounts and know where the programs actually live.',tasks:[
+   {kind:'set',t:'Create accounts: HackerOne, Bugcrowd, Intigriti, YesWeHack',url:'https://hackerone.com/opportunities/all'},
+   {kind:'lab',t:'Clear Hacker101 CTF flags to unlock private HackerOne invites',url:'https://ctf.hacker101.com'}
+ ]},
+ {act:2,title:'Learn from real, disclosed bugs',time:'~1 week, then daily',know:'You can reverse-engineer how a good hunter found and reported a bug.',tasks:[
+   {kind:'read',t:'Read HackerOne Hacktivity: pick 10 reports, note each technique',url:'https://hackerone.com/hacktivity'},
+   {kind:'read',t:'Follow NahamSec, STÖK, InsiderPhD for live-hunt methodology',url:s('NahamSec live recon bug bounty youtube')}
+ ]},
+ {act:2,title:'Pick your first target',time:'a few days',know:'You can read scope and rules and choose a target you can realistically win on.',tasks:[
+   {kind:'hunt',t:'On HackerOne/Bugcrowd, filter for a VDP with wide scope and open assets',n:'Start on VDPs. Getting an accepted report beats a fast payout.'},
+   {kind:'hunt',t:'Read the full program policy: scope, out-of-scope, automation rules, safe harbor',n:'Breaking the rules costs your safe harbor. Read every line.'}
+ ]},
+ {act:2,title:'NOW hunt: your first real sessions',time:'~2 weeks, then ongoing',know:'You can take one target from recon to a candidate finding on your own.',tasks:[
+   {kind:'hunt',t:'Enumerate the target: subfinder + httpx + nuclei, then map the app by hand',url:s('bug bounty recon subfinder httpx nuclei workflow')},
+   {kind:'hunt',t:'Pick ONE bug class and test every input for it across the app',n:'Start with access control / IDOR. Depth beats scatter.'},
+   {kind:'hunt',t:'Spend ~2 focused sessions a week hunting manually on that one target',n:'Expect dead ends. Consistency is the skill.'}
+ ]},
+ {act:2,title:'Write and submit your first report',time:'milestone',know:'You can write a clear, reproducible report — the thing that actually gets you paid.',tasks:[
+   {kind:'hunt',t:'Submit one well-written report (a VDP or even a dupe counts)',n:'Title, impact, steps to reproduce, fix. Clarity over flash.'},
+   {kind:'ship',t:'Once disclosed, publish a sanitized writeup',n:'One real, authorized finding is worth more than any cert line.'}
+ ]},
+ {act:2,type:'cert',optional:true,title:'Cert: a hands-on offense cert',time:'when methodology is solid',know:'Proof you can run offense end to end, not just isolated bugs.',tasks:[
+   {kind:'cert',t:'eJPT — cheapest real hands-on pentest cert (48h lab)',url:s('INE eJPT certification'),cost:'~$249'},
+   {kind:'cert',t:'or HTB CWES — most bug-bounty-aligned (Web Pen Tester path)',url:s('HTB Certified Web Exploitation Specialist CWES'),cost:'~$490/yr'},
+   {kind:'cert',t:'PNPT for full-chain + report practice; OSCP later as the name-brand bar',url:s('TCM Security PNPT certification'),cost:'~$499'}
+ ]},
+
+ // ===== ACT III — broaden =====
+ {act:3,title:'Network & service exploitation',time:'~2 weeks',know:'You exploit services beyond the browser and escalate privileges on a box.',tasks:[
+   {kind:'lab',t:'Work HTB / TryHackMe boxes: enumeration, exploitation, Linux & Windows privesc',url:'https://tryhackme.com/paths'},
+   {kind:'build',t:'Learn Metasploit, then do the same attack manually',n:'Know the tool, but never depend on it.'}
+ ]},
+ {act:3,title:'Active Directory & Windows attacks',time:'~2 weeks',know:'You understand how real corporate networks fall: AD enumeration, creds, lateral movement.',tasks:[
+   {kind:'lab',t:'Do an Active Directory path (THM "AD" or HTB Academy)',url:s('TryHackMe Active Directory path'),n:'Where almost every enterprise pentest actually happens.'}
+ ]},
+ {act:3,title:'Keep the CTF muscle alive',time:'ongoing',know:'Crypto, rev, pwn and forensics instincts pure web hunting never builds.',tasks:[
+   {kind:'lab',t:'Keep competing with b01lers',url:'https://b01lers.com'},
+   {kind:'lab',t:'Add pwn.college for binary & systems depth',url:'https://pwn.college'},
+   {kind:'ship',t:'Post a short writeup after each CTF'}
+ ]},
+
+ // ===== ACT IV — learn the machine =====
+ {act:4,title:'Understand how models actually work',time:'~1–2 weeks',know:'You know what a model does at train vs inference time, and where it can fail.',tasks:[
+   {kind:'read',t:'Watch Karpathy’s "Neural Networks: Zero to Hero" (build a tiny GPT)',url:'https://karpathy.ai/zero-to-hero.html',n:'Best intuition for how LLMs work.'},
+   {kind:'read',t:'Skim Hands-On ML (Géron) for classifiers + neural nets only',url:s('Hands-On Machine Learning Géron'),n:'Read selectively. You are not becoming an ML engineer.'}
+ ]},
+ {act:4,title:'Understand how LLM apps are built',time:'~1 week',know:'You can name every part of a real AI app — RAG, agents, tools, evals — so you know what to attack.',tasks:[
+   {kind:'read',t:'Skim Chip Huyen’s "AI Engineering"',url:s('AI Engineering Chip Huyen book'),n:'The exact systems you break next act.'}
+ ]},
+ {act:4,title:'Build your own AI target',time:'a few days',know:'You have a local AI app you fully control and can attack without limits.',tasks:[
+   {kind:'build',t:'Run a local LLM with Ollama on your home server',url:'https://ollama.com'},
+   {kind:'build',t:'Build a tiny RAG app (local model + vector store)',url:s('simple RAG tutorial ollama chromadb'),n:'Keep it. You attack it in Act V.'}
+ ]},
+
+ // ===== ACT V — break the machine (the frontier) =====
+ {act:5,title:'Learn the AI attacker’s map',time:'a few days',know:'You can place any AI attack on a shared taxonomy and speak the industry’s language.',tasks:[
+   {kind:'read',t:'Read the OWASP Top 10 for LLM Applications',url:'https://genai.owasp.org/llm-top-10/',n:'Know every entry cold.'},
+   {kind:'read',t:'Skim MITRE ATLAS + Google SAIF',url:'https://atlas.mitre.org',n:'Know SAIF well — it maps straight to Google interviews.'}
+ ]},
+ {act:5,title:'Map the full AI attack surface',time:'~1 week',know:'You see where trust breaks across prompts, retrieved data, plugins, multi-agent chains, and outputs.',tasks:[
+   {kind:'read',t:'Study where influence enters an AI system and where permissions fail',url:s('AI attack surface mapping prompt retrieval plugins agents'),n:'The field is moving from "a prompt" to "the whole ecosystem." Think in systems.'}
+ ]},
+ {act:5,title:'Prompt injection & jailbreaks, hands on',time:'~1–2 weeks',know:'You make an LLM ignore its instructions, directly and through poisoned content.',tasks:[
+   {kind:'lab',t:'Clear the PortSwigger "LLM attacks" labs',url:'https://portswigger.net/web-security/llm-attacks',n:'Your bridge from web hacking to AI, in a format you know.'},
+   {kind:'lab',t:'Beat Gandalf + HackAPrompt',url:'https://gandalf.lakera.ai'},
+   {kind:'read',t:'Read Greshake et al., indirect prompt injection',url:'https://arxiv.org/abs/2302.12173',n:'The foundational paper. Read it fully.'}
+ ]},
+ {act:5,title:'RAG security & data extraction',time:'~1 week',know:'You can pull data out of a RAG system and poison the sources it trusts.',tasks:[
+   {kind:'build',t:'Attack your own RAG app: extract context, poison a document, break retrieval permissions',n:'RAG security is one of the hottest 2026 red-team skills.'},
+   {kind:'read',t:'Read Embrace The Red for real exploits against shipped assistants',url:'https://embracethered.com/blog/'}
+ ]},
+ {act:5,title:'Automated AI red-team tooling',time:'~1 week',know:'You can point real red-team tools at a model and read the results.',tasks:[
+   {kind:'build',t:'Scan your local model with garak',url:'https://github.com/NVIDIA/garak'},
+   {kind:'build',t:'Try Microsoft PyRIT for automated probing',url:'https://github.com/Azure/PyRIT'}
+ ]},
+ {act:5,title:'Break a full agent, then defend it',time:'milestone',know:'You exploited a tool-using AI agent end to end, defended it, and measured the difference.',tasks:[
+   {kind:'build',t:'Give your RAG app file/email tools in a sandbox, then hijack it via injection in retrieved docs',n:'The project that proves you can hack the machine.'},
+   {kind:'build',t:'Add defenses; measure attack success rate before vs after',n:'Least privilege, confirmation gates, content isolation, output filtering.'},
+   {kind:'read',t:'Read CaMeL (defeating prompt injection by design)',url:'https://arxiv.org/abs/2503.18813'}
+ ]},
+ {act:5,title:'Test like a pro: nondeterminism & impact',time:'~1 week',know:'You can reproduce a flaky AI finding and translate it into real business risk — the rare, valued skill.',tasks:[
+   {kind:'build',t:'Reproduce one finding across runs and quantify how often it fires'},
+   {kind:'build',t:'Write it as an impact chain: weakness → post-exploitation → business risk → fix',n:'In AI red teaming, clear impact framing is as valued as the find.'}
+ ]},
+ {act:5,type:'ship',title:'Ship checkpoint: AI red teamer in public',time:'milestone',know:'Your blog marks you as an AI red teamer, not just a learner.',tasks:[
+   {kind:'ship',t:'Publish each AI exploit as a writeup mapped to the OWASP LLM Top 10'},
+   {kind:'ship',t:'Post the vulnerable-agent project thread on LinkedIn',n:'This niche is small and loud. Consistent posts get you noticed fast.'}
+ ]},
+ {act:5,type:'cert',title:'Cert: HTB AI Red Teamer → COAE',time:'after you’ve broken an agent',cost:'~$210 exam',know:'A SAIF-aligned AI red-team cert built with Google — your main AI credential.',tasks:[
+   {kind:'cert',t:'Work the HTB AI Red Teamer path, then sit the COAE exam',url:s('HTB AI Red Teamer path COAE'),n:'12 modules, 7-day practical exam with a pro report.'},
+   {kind:'cert',t:'OffSec OSAI+ (AI-300) later, once your base is deep',url:'https://www.offsec.com/courses/ai-300/',cost:'advanced'}
+ ]},
+ {act:5,title:'Earn from it',time:'when ready',know:'You turn an AI finding into a real, paid, authorized submission.',tasks:[
+   {kind:'hunt',t:'Submit to 0DIN (GenAI bounty, $500–15K)',url:'https://0din.ai'},
+   {kind:'hunt',t:'Try Google’s AI VRP (up to $20K)',url:s('Google AI Vulnerability Reward Program'),n:'Pays for data/account attacks, not plain jailbreaks. Read the rules first.'}
+ ]},
+
+ // ===== ACT VI — full charge =====
+ {act:6,title:'Ship your capstone',time:'flagship',know:'You have one standout public project that says exactly what you can do.',tasks:[
+   {kind:'build',t:'Package the vulnerable-agent project: attack chain, results, defenses',n:'Clean repo + writeup, mapped to OWASP LLM Top 10 and MITRE ATLAS.'},
+   {kind:'build',t:'Turn it into an AI-security CTF challenge and run it at your club',n:'You already lead one. Host it on your own infra.'}
+ ]},
+ {act:6,type:'ship',title:'Get on stage',time:'when the capstone lands',know:'Your name attached to the work, in public.',tasks:[
+   {kind:'ship',t:'Submit a talk or poster to DEF CON AI Village or a local meetup',url:'https://aivillage.org'},
+   {kind:'ship',t:'Do a resume pass: cert + public writeup + real finding for each act'}
+ ]},
+ {act:6,title:'Keep the charge up',time:'forever',know:'You stay on the frontier after the roadmap ends.',tasks:[
+   {kind:'read',t:'Weekly: Simon Willison, Embrace The Red, Nicholas Carlini, Project Zero',url:'https://simonwillison.net/tags/prompt-injection/'},
+   {kind:'read',t:'Yearly: skim USENIX Security, IEEE S&P, SaTML for LLM/ML security',url:'https://satml.org'}
+ ]}
+];
+
+let gi = 0;
+STEPS.forEach((st,si) => { st.i = si; st.tasks.forEach((t,ti) => t.id = 's'+si+'-'+ti); });
+
+const KEY = 'bolt-roadmap-v3';
+let state = {};
+try{ state = JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(e){ state={}; }
+const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} };
+
+function esc(x){ return String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+const stepDone = st => st.tasks.every(t => state[t.id]);
+
+function render(){
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+  let curAct = -1, stepsWrap = null;
+  STEPS.forEach(st => {
+    if(st.act !== curAct){
+      curAct = st.act;
+      const a = ACTS[curAct];
+      const lab = document.createElement('div');
+      lab.className = 'actlabel';
+      lab.innerHTML = `<span class="ax">${esc(a.ax)}</span><span class="an">${esc(a.an)}</span><span class="ad">${esc(a.ad)}</span>`;
+      main.appendChild(lab);
+      stepsWrap = document.createElement('div');
+      stepsWrap.className = 'steps';
+      main.appendChild(stepsWrap);
+    }
+    const done = stepDone(st);
+    const closedKey = 'open-'+st.i;
+    const closed = state[closedKey] === false;
+    const type = st.type || 'learn';
+    const el = document.createElement('div');
+    el.className = 'step' + (done?' complete':'') + (closed?' closed':'') + (st.optional?' optional':'') + (type!=='learn'?' '+type:'');
+    el.dataset.i = st.i;
+    const dc = st.tasks.filter(t=>state[t.id]).length;
+    let node;
+    if(done) node='✓'; else if(type==='ship') node='⚑'; else if(type==='cert') node='◆'; else if(st.optional) node='◇'; else node=(st.i+1);
+    let flag='';
+    if(type==='ship') flag='<span class="flag ship">Ship</span>';
+    else if(type==='cert') flag='<span class="flag cert">Cert</span>';
+    if(st.optional) flag+='<span class="flag opt">Optional</span>';
+    let subs = '';
+    st.tasks.forEach(t => {
+      const title = t.url ? `<a href="${esc(t.url)}" target="_blank" rel="noopener">${esc(t.t)}</a>` : esc(t.t);
+      const cost = t.cost ? `<span class="cost mono">${esc(t.cost)}</span>` : '';
+      subs += `<li class="subtask${state[t.id]?' done':''}"><input type="checkbox" id="${t.id}" data-id="${t.id}" ${state[t.id]?'checked':''} aria-label="Done"><div class="sb"><div class="st">${title}<span class="tag" style="background:${colors[t.kind]}">${KINDS[t.kind]}</span>${cost}</div>${t.n?`<div class="sn">${esc(t.n)}</div>`:''}</div></li>`;
+    });
+    el.innerHTML = `<div class="node">${node}</div><div class="card">`
+      + `<button class="step-head" aria-expanded="${!closed}"><div class="h-main"><div class="step-title">${esc(st.title)}${flag}</div><div class="step-meta">${esc(st.time)}</div><div class="know"><b>After this:</b> ${esc(st.know)}</div></div><div class="h-right"><div class="h-prog">${dc}/${st.tasks.length}</div><div class="chev">▾</div></div></button>`
+      + `<ul class="subtasks">${subs}</ul></div>`;
+    el.querySelector('.step-head').addEventListener('click', () => {
+      el.classList.toggle('closed');
+      const open = !el.classList.contains('closed');
+      state[closedKey] = open;
+      el.querySelector('.step-head').setAttribute('aria-expanded', open);
+      save();
+    });
+    stepsWrap.appendChild(el);
+  });
+  main.querySelectorAll('input[type=checkbox]').forEach(cb => cb.addEventListener('change', e => {
+    state[e.target.dataset.id] = e.target.checked;
+    save(); render(); update();
+  }));
+  update();
+}
+
+function update(){
+  let total=0, done=0, nextStep=null;
+  STEPS.forEach(st => st.tasks.forEach(t => { total++; if(state[t.id]) done++; }));
+  for(const st of STEPS){ if(!st.optional && !stepDone(st)){ nextStep=st; break; } }
+  if(!nextStep){ for(const st of STEPS){ if(!stepDone(st)){ nextStep=st; break; } } }
+  const pct = total ? Math.round(done/total*100) : 0;
+  document.getElementById('pct').textContent = pct+'%';
+  document.getElementById('count').textContent = done+' of '+total+' done';
+  document.getElementById('bar').style.width = pct+'%';
+  document.getElementById('next').innerHTML = nextStep
+    ? `Next up: <b>${esc(nextStep.title)}</b><br><span>${esc(ACTS[nextStep.act].an)} · ${esc(nextStep.time)}</span>`
+    : '<b>Fully charged.</b> Roadmap complete — now teach it, and keep Act VI running.';
+}
+
+let resetArmed=null;
+document.getElementById('reset').onclick = e => {
+  const b = e.currentTarget;
+  if(resetArmed){ clearTimeout(resetArmed); resetArmed=null; b.textContent='Reset'; b.classList.remove('warn'); state={}; save(); render(); return; }
+  b.textContent='Click again to clear'; b.classList.add('warn');
+  resetArmed = setTimeout(()=>{ resetArmed=null; b.textContent='Reset'; b.classList.remove('warn'); }, 4000);
+};
+document.getElementById('expand').onclick = e => {
+  const anyOpen = [...document.querySelectorAll('.step')].some(s => !s.classList.contains('closed'));
+  STEPS.forEach(st => { state['open-'+st.i] = !anyOpen; });
+  e.target.textContent = anyOpen ? 'Expand all' : 'Collapse all';
+  save(); render();
+};
+document.getElementById('theme').onclick = () => {
+  const r = document.documentElement;
+  const dark = r.dataset.theme ? r.dataset.theme==='dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  r.dataset.theme = dark ? 'light' : 'dark';
+  try{ localStorage.setItem(KEY+'-theme', r.dataset.theme); }catch(e){}
+};
+try{ const t = localStorage.getItem(KEY+'-theme'); if(t) document.documentElement.dataset.theme = t; }catch(e){}
+
+render();
+</script>
+
+</body>
+</html>
